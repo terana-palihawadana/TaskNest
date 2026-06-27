@@ -34,10 +34,22 @@ function TaskListPage() {
 
     try {
       if (editingId) {
-        await updateTask(editingId, { title, description, status, priority, dueDate: dueDate || null });
+        await updateTask(editingId, {
+          title,
+          description,
+          status,
+          priority,
+          dueDate: dueDate || null,
+        });
         setEditingId(null);
       } else {
-        await createTask({ title, description, status, priority, dueDate: dueDate || null });
+        await createTask({
+          title,
+          description,
+          status,
+          priority,
+          dueDate: dueDate || null,
+        });
       }
 
       setTitle("");
@@ -117,9 +129,9 @@ function TaskListPage() {
             <div className="mb-3">
               <label className="form-label">Priority</label>
               <select
-              className="form-select"
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
+                className="form-select"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
               >
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
@@ -130,10 +142,10 @@ function TaskListPage() {
             <div className="mb-3">
               <label className="form-label">Due Date</label>
               <input
-              type="date"
-              className="form-control"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+                type="date"
+                className="form-control"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
               />
             </div>
 
@@ -149,7 +161,7 @@ function TaskListPage() {
               </select>
             </div>
 
-            <button type="submit" className="btn btn-primary me-2">
+            <button type="submit" className="btn btn-new-task me-2">
               {editingId ? "Save Changes" : "Add Task"}
             </button>
 
@@ -203,23 +215,28 @@ function TaskListPage() {
                   </td>
                   <td>
                     {task.priority ? (
-                      <span className={`badge ${
-                        task.priority === "High"
-                        ? "bg-danger"
-                        : task.priority === "Medium"
-                        ? "bg-warning text-dark"
-                        : "bg-secondary"
-                      }`}
+                      <span
+                        className={`badge ${
+                          task.priority === "High"
+                            ? "bg-danger"
+                            : task.priority === "Medium"
+                              ? "bg-warning text-dark"
+                              : "bg-secondary"
+                        }`}
                       >
                         {task.priority}
                       </span>
-                    ) : ("—")
-                    }
+                    ) : (
+                      "—"
+                    )}
                   </td>
                   <td>
-                    <span className={`badge ${
-                      task.status === "Completed" ? "bg-success" : "bg-warning text-dark"
-                    }`}
+                    <span
+                      className={`badge ${
+                        task.status === "Completed"
+                          ? "bg-success"
+                          : "bg-warning text-dark"
+                      }`}
                     >
                       {task.status}
                     </span>
