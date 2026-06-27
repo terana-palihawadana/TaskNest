@@ -82,6 +82,7 @@ function TaskListPage() {
       setStatus("Pending");
       setPriority("Medium");
       setDueDate("");
+      setEditingId(null);
       setShowModal(false);
       await fetchTasks();
     } catch (err) {
@@ -115,6 +116,20 @@ function TaskListPage() {
     setPriority(task.priority || "Medium");
     setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
     setShowModal(true);
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setStatus("Pending");
+    setPriority("Medium");
+    setDueDate("");
+    setEditingId(null);
+  };
+
+  const closeTaskModal = () => {
+    setShowModal(false);
+    resetForm();
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -153,85 +168,163 @@ function TaskListPage() {
 
       <Modal
         show={showModal}
+        centered
         fullscreen="sm-down"
-        onHide={() => {
-          setShowModal(false);
-          setEditingId(null);
-          setTitle("");
-          setDescription("");
-          setStatus("Pending");
-          setPriority("Medium");
-          setDueDate("");
-        }}
+        dialogClassName="task-modal-dialog"
+        onHide={closeTaskModal}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>{editingId ? "Edit Task" : "Add Task"}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label className="form-label">Title</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </div>
+        {editingId ? (
+          <>
+            <Modal.Header closeButton className="task-modal-header">
+              <Modal.Title>Edit Task</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="task-modal-body">
+              <form id="edit-task-form" onSubmit={handleSubmit}>
+                <div className="task-modal-field">
+                  <label htmlFor="edit-title">Task Description</label>
+                  <input
+                    id="edit-title"
+                    type="text"
+                    className="task-modal-input"
+                    placeholder="What needs to be done?"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                  />
+                </div>
 
-            <div className="mb-3">
-              <label className="form-label">Description</label>
-              <textarea
-                className="form-control"
-                placeholder="Description"
-                rows="3"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
+                <div className="task-modal-field">
+                  <label htmlFor="edit-description">Context &amp; Details</label>
+                  <textarea
+                    id="edit-description"
+                    className="task-modal-textarea"
+                    placeholder="Add any background information, links, or specific sub-tasks..."
+                    rows="4"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </div>
 
-            <div className="mb-3">
-              <label className="form-label">Priority</label>
-              <select
-                className="form-select"
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-              >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-              </select>
-            </div>
+                <div className="task-modal-field">
+                  <label>Priority Level</label>
+                  <div className="priority-segments" role="group" aria-label="Priority level">
+                    {["Low", "Medium", "High"].map((level) => (
+                      <button
+                        key={level}
+                        type="button"
+                        className={`priority-segment${priority === level ? " active" : ""}`}
+                        onClick={() => setPriority(level)}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            <div className="mb-3">
-              <label className="form-label">Due Date</label>
-              <input
-                type="date"
-                className="form-control"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-              />
-            </div>
+                <div className="task-modal-field">
+                  <label htmlFor="edit-due-date">Due Date</label>
+                  <input
+                    id="edit-due-date"
+                    type="date"
+                    className="task-modal-textarea task-modal-date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                  />
+                </div>
 
-            <div className="mb-3">
-              <label className="form-label">Status</label>
-              <select
-                className="form-select"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="Pending">Pending</option>
-                <option value="Completed">Completed</option>
-              </select>
-            </div>
+                <div className="task-modal-field">
+                  <label htmlFor="edit-status">Status</label>
+                  <select
+                    id="edit-status"
+                    className="task-modal-textarea task-modal-select"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
+              </form>
+            </Modal.Body>
+            <Modal.Footer className="task-modal-footer">
+              <button type="button" className="task-modal-discard" onClick={closeTaskModal}>
+                Discard
+              </button>
+              <button type="submit" form="edit-task-form" className="task-modal-submit">
+                Save Changes
+              </button>
+            </Modal.Footer>
+          </>
+        ) : (
+          <>
+            <Modal.Header closeButton className="task-modal-header">
+              <Modal.Title>New Task</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="task-modal-body">
+              <form id="create-task-form" onSubmit={handleSubmit}>
+                <div className="task-modal-field">
+                  <label htmlFor="create-title">Task Description</label>
+                  <input
+                    id="create-title"
+                    type="text"
+                    className="task-modal-input"
+                    placeholder="What needs to be done?"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                  />
+                </div>
 
-            <button type="submit" className="btn btn-new-task">
-              {editingId ? "Save Changes" : "Add Task"}
-            </button>
-          </form>
-        </Modal.Body>
+                <div className="task-modal-field">
+                  <label htmlFor="create-description">Context &amp; Details</label>
+                  <textarea
+                    id="create-description"
+                    className="task-modal-textarea"
+                    placeholder="Add any background information, links, or specific sub-tasks..."
+                    rows="4"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </div>
+
+                <div className="task-modal-field">
+                  <label>Priority Level</label>
+                  <div className="priority-segments" role="group" aria-label="Priority level">
+                    {["Low", "Medium", "High"].map((level) => (
+                      <button
+                        key={level}
+                        type="button"
+                        className={`priority-segment${priority === level ? " active" : ""}`}
+                        onClick={() => setPriority(level)}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="task-modal-field">
+                  <label htmlFor="create-due-date">Due Date</label>
+                  <input
+                    id="create-due-date"
+                    type="date"
+                    className="task-modal-textarea task-modal-date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                  />
+                </div>
+              </form>
+            </Modal.Body>
+            <Modal.Footer className="task-modal-footer">
+              <button type="button" className="task-modal-discard" onClick={closeTaskModal}>
+                Discard
+              </button>
+              <button type="submit" form="create-task-form" className="task-modal-submit">
+                Create Task
+              </button>
+            </Modal.Footer>
+          </>
+        )}
       </Modal>
 
       <Modal
