@@ -22,6 +22,7 @@ function DashboardPage() {
   const total = tasks.length;
   const pending = tasks.filter((task) => task.status === "Pending").length;
   const completed = tasks.filter((task) => task.status === "Completed").length;
+  const focusTasks = tasks.filter((task) => task.status === "Pending");
 
   if (loading) return <p>Loading...</p>;
 
@@ -58,6 +59,25 @@ function DashboardPage() {
           </div>
         </div>
       </div>
+
+      <h2 className="h5 mt-4 mb-3">Focus today</h2>
+
+      {focusTasks.length === 0 ? (
+        <p className="text-muted">No pending tasks. You're all caught up!</p>
+      ) : (
+        <ul className="list-group">
+          {focusTasks.map((task) => (
+            <li key={task._id} className="list-group-item">
+              <strong>{task.title}</strong>
+              {task.dueDate && (
+                <span className="text-muted ms-2">
+                  Due {new Date(task.dueDate).toLocaleDateString()}
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

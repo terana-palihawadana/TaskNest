@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getTasks, createTask, deleteTask, updateTask } from "../api/taskApi";
+import { Modal, Button } from "react-bootstrap";
 
 function TaskListPage() {
   const [tasks, setTasks] = useState([]);
@@ -11,6 +12,9 @@ function TaskListPage() {
   const [editingId, setEditingId] = useState(null);
   const [priority, setPriority] = useState("Medium");
   const [dueDate, setDueDate] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   const fetchTasks = async () => {
     try {
@@ -57,6 +61,7 @@ function TaskListPage() {
       setStatus("Pending");
       setPriority("Medium");
       setDueDate("");
+      setShowModal(false);
       await fetchTasks();
     } catch (err) {
       console.error(err);
@@ -64,11 +69,16 @@ function TaskListPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this task?")) return;
+  const openDeleteModal = (id) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
 
+  const confirmDelete = async () => {
     try {
-      await deleteTask(id);
+      await deleteTask(deleteId);
+      setShowDeleteModal(false);
+      setDeleteId(null);
       await fetchTasks();
     } catch (err) {
       console.error(err);
@@ -83,6 +93,7 @@ function TaskListPage() {
     setStatus(task.status);
     setPriority(task.priority || "Medium");
     setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
+    setShowModal(true);
   };
 
   if (loading) return <p>Loading...</p>;
@@ -98,11 +109,31 @@ function TaskListPage() {
       <h1 className="h3 mb-4">TaskNest - All Tasks</h1>
       <p className="text-muted">Manage your sanctuary of focused work</p>
 
-      <div className="card mb-4">
-        <div className="card-body">
-          <form onSubmit={handleSubmit}>
-            <h2 className="h4 mb-3">{editingId ? "Edit Task" : "Add Task"}</h2>
+      <button
+        type="button"
+        className="btn btn-new-task mb-4"
+        onClick={() => setShowModal(true)}
+      >
+        + Add Task
+      </button>
 
+      <Modal
+        show={showModal}
+        onHide={() => {
+          setShowModal(false);
+          setEditingId(null);
+          setTitle("");
+          setDescription("");
+          setStatus("Pending");
+          setPriority("Medium");
+          setDueDate("");
+        }}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{editingId ? "Edit Task" : "Add Task"}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="form-label">Title</label>
               <input
@@ -161,29 +192,41 @@ function TaskListPage() {
               </select>
             </div>
 
-            <button type="submit" className="btn btn-new-task me-2">
+            <button type="submit" className="btn btn-new-task">
               {editingId ? "Save Changes" : "Add Task"}
             </button>
-
-            {editingId && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
-                  setEditingId(null);
-                  setTitle("");
-                  setDescription("");
-                  setStatus("Pending");
-                  setPriority("Medium");
-                  setDueDate("");
-                }}
-              >
-                Cancel
-              </button>
-            )}
           </form>
-        </div>
-      </div>
+        </Modal.Body>
+      </Modal>
+
+      <Modal
+        show={showDeleteModal}
+        onHide={() => {
+          setShowDeleteModal(false);
+          setDeleteId(null);
+        }}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Delete task</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this task? This cannot be undone.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setShowDeleteModal(false);
+              setDeleteId(null);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {tasks.length === 0 ? (
         <p className="text-muted">No tasks yet.</p>
@@ -252,7 +295,7 @@ function TaskListPage() {
                     <button
                       type="button"
                       className="btn btn-sm btn-outline-danger"
-                      onClick={() => handleDelete(task._id)}
+                      onClick={() => openDeleteModal(task._id)}
                     >
                       Delete
                     </button>
