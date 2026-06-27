@@ -1,6 +1,64 @@
 import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { getTasks, updateTask } from "../api/taskApi";
+import "./DashboardPage.css";
+
+function StatCard({ iconBg, icon, label, value, topRight }) {
+  return (
+    <div className="stat-card">
+      <div className="stat-card-top">
+        <div className="stat-card-icon" style={{ backgroundColor: iconBg }}>
+          {icon}
+        </div>
+        {topRight && <div className="stat-card-extra">{topRight}</div>}
+      </div>
+      <p className="stat-card-label">{label}</p>
+      <p className="stat-card-value">{value}</p>
+    </div>
+  );
+}
+
+const ListIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M9 6h11M9 12h11M9 18h11"
+      stroke="#3d5c1a"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    <circle cx="5" cy="6" r="1.25" fill="#3d5c1a" />
+    <circle cx="5" cy="12" r="1.25" fill="#3d5c1a" />
+    <circle cx="5" cy="18" r="1.25" fill="#3d5c1a" />
+  </svg>
+);
+
+const PendingIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"
+      stroke="#6d28d9"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <rect x="9" y="3" width="6" height="4" rx="1" stroke="#6d28d9" strokeWidth="2" />
+    <circle cx="12" cy="14" r="3" stroke="#6d28d9" strokeWidth="2" />
+    <path d="M12 12.5V14l1 1" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+const DoneIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" stroke="#fff" strokeWidth="2" />
+    <path
+      d="M8 12.5l2.5 2.5L16 9.5"
+      stroke="#fff"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 
 function DashboardPage() {
   const [tasks, setTasks] = useState([]);
@@ -55,9 +113,25 @@ function DashboardPage() {
     return date.toDateString() === today.toDateString();
   };
 
+  const isYesterday = (dateString) => {
+    const date = new Date(dateString);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return date.toDateString() === yesterday.toDateString();
+  };
+
+  const createdYesterday = tasks.filter((task) =>
+    isYesterday(task.createdAt),
+  ).length;
+
   const doneToday = tasks.filter(
     (task) => task.status === "Completed" && isToday(task.updatedAt),
   ).length;
+
+  const doneTodayPercent =
+    doneToday + pending === 0
+      ? 0
+      : Math.round((doneToday / (doneToday + pending)) * 100);
 
   const highPending = tasks.filter(
     (task) => task.priority === "High" && task.status === "Pending",
@@ -106,30 +180,43 @@ function DashboardPage() {
       </p>
       <div className="row g-3">
         <div className="col-md-4">
-          <div className="card">
-            <div className="card-body">
-              <p className="text-muted mb-1">Total tasks</p>
-              <h2 className="h3 mb-0">{total}</h2>
-            </div>
-          </div>
+          <StatCard
+            iconBg="#eef6dc"
+            icon={<ListIcon />}
+            label="Total tasks"
+            value={total}
+            topRight={
+              <p className="stat-card-yesterday">
+                +{createdYesterday} from yesterday
+              </p>
+            }
+          />
         </div>
 
         <div className="col-md-4">
-          <div className="card">
-            <div className="card-body">
-              <p className="text-muted mb-1">Pending</p>
-              <h2 className="h3 mb-0">{pending}</h2>
-            </div>
-          </div>
+          <StatCard
+            iconBg="#ede9fe"
+            icon={<PendingIcon />}
+            label="Pending"
+            value={pending}
+          />
         </div>
 
         <div className="col-md-4">
-          <div className="card">
-            <div className="card-body">
-              <p className="text-muted mb-1">Done Today</p>
-              <h2 className="h3 mb-0">{doneToday}</h2>
-            </div>
-          </div>
+          <StatCard
+            iconBg="#99cc33"
+            icon={<DoneIcon />}
+            label="Done today"
+            value={doneToday}
+            topRight={
+              <div className="stat-card-progress">
+                <div
+                  className="stat-card-progress-fill"
+                  style={{ width: `${doneTodayPercent}%` }}
+                />
+              </div>
+            }
+          />
         </div>
       </div>
 
