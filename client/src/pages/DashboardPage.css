@@ -70,3 +70,108 @@
   margin: 0;
   line-height: 1.1;
 }
+
+.focus-panel {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.focus-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.focus-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.focus-panel-title h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: #111827;
+}
+
+.focus-panel-view-all {
+  color: #7cb342;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.focus-panel-view-all:hover {
+  color: #689f38;
+}
+
+.focus-panel-empty {
+  color: #6b7280;
+  margin: 1rem 0 0;
+}
+
+.focus-panel-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.focus-panel-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.focus-panel-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.focus-panel-checkbox {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 2px solid #99cc33;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: #99cc33;
+}
+
+.focus-panel-task-title {
+  flex: 1;
+  font-weight: 600;
+  color: #111827;
+  font-size: 0.95rem;
+}
+
+.focus-priority-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.focus-priority-high {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.focus-priority-medium {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.focus-priority-low {
+  background: #f3f4f6;
+  color: #6b7280;
+}

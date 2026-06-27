@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { getTasks, updateTask } from "../api/taskApi";
 import "./DashboardPage.css";
 
@@ -59,6 +59,24 @@ const DoneIcon = () => (
     />
   </svg>
 );
+
+const LightningIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"
+      fill="#99cc33"
+      stroke="#99cc33"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+function priorityClass(priority) {
+  if (priority === "High") return "focus-priority-high";
+  if (priority === "Medium") return "focus-priority-medium";
+  return "focus-priority-low";
+}
 
 function DashboardPage() {
   const [tasks, setTasks] = useState([]);
@@ -222,49 +240,44 @@ function DashboardPage() {
 
       <div className="row mt-4">
         <div className="col-lg-8">
-          <h2 className="h5 mb-3">Focus for Today</h2>
+          <div className="focus-panel">
+            <div className="focus-panel-header">
+              <div className="focus-panel-title">
+                <LightningIcon />
+                <h2>Focus for Today</h2>
+              </div>
+              <Link to="/tasks" className="focus-panel-view-all">
+                View All
+              </Link>
+            </div>
 
-          {focusTasks.length === 0 ? (
-            <p className="text-muted">
-              No pending tasks. You're all caught up!
-            </p>
-          ) : (
-            <ul className="list-group">
-              {focusTasks.map((task) => (
-                <li
-                  key={task._id}
-                  className="list-group-item d-flex justify-content-between align-items-center"
-                >
-                  <div className="d-flex align-items-center gap-3">
+            {focusTasks.length === 0 ? (
+              <p className="focus-panel-empty">
+                No pending tasks. You're all caught up!
+              </p>
+            ) : (
+              <ul className="focus-panel-list">
+                {focusTasks.map((task) => (
+                  <li key={task._id} className="focus-panel-item">
                     <input
                       type="checkbox"
-                      className="form-check-input mt-0"
+                      className="focus-panel-checkbox"
+                      aria-label={`Mark ${task.title} complete`}
                       onChange={() => handleComplete(task)}
                     />
-                    <strong>{task.title}</strong>
-                    {task.dueDate && (
-                      <span className="text-muted ms-2">
-                        Due {new Date(task.dueDate).toLocaleDateString()}
+                    <span className="focus-panel-task-title">{task.title}</span>
+                    {task.priority && (
+                      <span
+                        className={`focus-priority-badge ${priorityClass(task.priority)}`}
+                      >
+                        {task.priority}
                       </span>
                     )}
-                  </div>
-                  {task.priority && (
-                    <span
-                      className={`badge ${
-                        task.priority === "High"
-                          ? "bg-danger"
-                          : task.priority === "Medium"
-                            ? "bg-warning text-dark"
-                            : "bg-secondary"
-                      }`}
-                    >
-                      {task.priority}
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
 
         <div className="col-lg-4 d-flex flex-column gap-3">
