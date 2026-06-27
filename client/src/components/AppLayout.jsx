@@ -1,9 +1,11 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import "./AppLayout.css";
 import TopBar from "./TopBar.jsx";
 
 function AppLayout() {
   const navigate = useNavigate();
+  const [search, setSearch] = useState("");
 
   const handleNewTask = () => {
     navigate("/tasks", { state: { openModal: true } });
@@ -48,8 +50,8 @@ function AppLayout() {
       </aside>
 
       <main className="flex-grow-1 p-4 bg-light">
-        <TopBar />
-        <Outlet />
+      <TopBar search={search} onSearchChange={setSearch} />
+      <Outlet context={{ search }} />
       </main>
     </div>
   );

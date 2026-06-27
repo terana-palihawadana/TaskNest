@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import { getTasks, updateTask } from "../api/taskApi";
 
 function DashboardPage() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { search } = useOutletContext();
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -37,7 +39,16 @@ function DashboardPage() {
 
   const total = tasks.length;
   const pending = tasks.filter((task) => task.status === "Pending").length;
-  const focusTasks = tasks.filter((task) => task.status === "Pending");
+  const focusTasks = tasks
+    .filter((task) => task.status === "Pending")
+    .filter((task) => {
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      return (
+        task.title.toLowerCase().includes(q) ||
+        (task.description && task.description.toLowerCase().includes(q))
+      );
+    });
   const isToday = (dateString) => {
     const date = new Date(dateString);
     const today = new Date();
@@ -109,10 +120,11 @@ function DashboardPage() {
           <h2 className="h5 mb-3">Focus for Today</h2>
 
           {focusTasks.length === 0 ? (
-            <p className="text-muted">No pending tasks. You're all caught up!</p>
+            <p className="text-muted">
+              No pending tasks. You're all caught up!
+            </p>
           ) : (
             <ul className="list-group">
-                          <ul className="list-group">
               {focusTasks.map((task) => (
                 <li
                   key={task._id}
@@ -146,7 +158,6 @@ function DashboardPage() {
                   )}
                 </li>
               ))}
-            </ul>
             </ul>
           )}
         </div>

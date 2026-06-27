@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { getTasks, createTask, deleteTask, updateTask } from "../api/taskApi";
 import { Modal, Button } from "react-bootstrap";
-import { useLocation } from "react-router-dom";
+import { useLocation, useOutletContext } from "react-router-dom";
+
 
 function TaskListPage() {
   const [tasks, setTasks] = useState([]);
@@ -18,6 +19,7 @@ function TaskListPage() {
   const [deleteId, setDeleteId] = useState(null);
 
   const location = useLocation();
+  const { search } = useOutletContext();
 
   const fetchTasks = async () => {
     try {
@@ -104,6 +106,15 @@ function TaskListPage() {
     setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
     setShowModal(true);
   };
+
+  const filteredTasks = tasks.filter((task) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      task.title.toLowerCase().includes(q) ||
+      (task.description && task.description.toLowerCase().includes(q))
+    );
+  });
 
   if (loading) return <p>Loading...</p>;
 
@@ -237,7 +248,7 @@ function TaskListPage() {
         </Modal.Footer>
       </Modal>
 
-      {tasks.length === 0 ? (
+      {filteredTasks.length === 0 ? (
         <p className="text-muted">No tasks yet.</p>
       ) : (
         <div className="table-responsive">
@@ -253,7 +264,7 @@ function TaskListPage() {
               </tr>
             </thead>
             <tbody>
-              {tasks.map((task) => (
+              {filteredTasks.map((task) => (
                 <tr key={task._id}>
                   <td>
                     <strong>{task.title}</strong>

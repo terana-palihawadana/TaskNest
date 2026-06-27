@@ -1,4 +1,4 @@
-function TopBar() {
+function TopBar({ search, onSearchChange }) {
     return (
       <div className="d-flex justify-content-between align-items-center mb-4">
         <input
@@ -6,6 +6,8 @@ function TopBar() {
           className="form-control"
           placeholder="Search focus..."
           style={{ maxWidth: "320px" }}
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
         />
         <div className="d-flex align-items-center gap-2">
           <span className="fw-semibold">Julian Rivera</span>
