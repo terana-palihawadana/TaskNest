@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getTasks, createTask, deleteTask, updateTask } from "../api/taskApi";
 import { Modal, Button } from "react-bootstrap";
+import { useLocation } from "react-router-dom";
 
 function TaskListPage() {
   const [tasks, setTasks] = useState([]);
@@ -16,6 +17,8 @@ function TaskListPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
+  const location = useLocation();
+
   const fetchTasks = async () => {
     try {
       const response = await getTasks();
@@ -28,6 +31,12 @@ function TaskListPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (location.state?.openModal) {
+      setShowModal(true);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     fetchTasks();
@@ -237,6 +246,7 @@ function TaskListPage() {
               <tr>
                 <th>Task name</th>
                 <th>Due date</th>
+                <th>Created</th>
                 <th>Priority</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -254,6 +264,11 @@ function TaskListPage() {
                   <td>
                     {task.dueDate
                       ? new Date(task.dueDate).toLocaleDateString()
+                      : "—"}
+                  </td>
+                  <td>
+                    {task.createdAt
+                      ? new Date(task.createdAt).toLocaleDateString()
                       : "—"}
                   </td>
                   <td>
