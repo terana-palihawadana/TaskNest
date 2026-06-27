@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getTasks, createTask, deleteTask, updateTask } from "../api/taskApi";
-import { Modal, Button } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { useLocation, useOutletContext } from "react-router-dom";
 import "./TaskListPage.css";
 
@@ -99,8 +99,7 @@ function TaskListPage() {
   const confirmDelete = async () => {
     try {
       await deleteTask(deleteId);
-      setShowDeleteModal(false);
-      setDeleteId(null);
+      closeDeleteModal();
       await fetchTasks();
     } catch (err) {
       console.error(err);
@@ -116,6 +115,11 @@ function TaskListPage() {
     setPriority(task.priority || "Medium");
     setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
     setShowModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setDeleteId(null);
   };
 
   const resetForm = () => {
@@ -329,32 +333,51 @@ function TaskListPage() {
 
       <Modal
         show={showDeleteModal}
-        fullscreen="sm-down"
-        onHide={() => {
-          setShowDeleteModal(false);
-          setDeleteId(null);
-        }}
+        centered
+        dialogClassName="delete-modal-dialog"
+        onHide={closeDeleteModal}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>Delete task</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to delete this task? This cannot be undone.
+        <Modal.Body className="delete-modal-body">
+          <div className="delete-modal-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M9 3h6l1 2h4v2H4V5h4l1-2z"
+                fill="currentColor"
+              />
+              <path
+                d="M6 9h12v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z"
+                fill="currentColor"
+                opacity="0.85"
+              />
+              <path
+                d="M10 11v6M14 11v6"
+                stroke="#fce8e8"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M12 8v2M11 7l1 1 1-1"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <h2 className="delete-modal-title">Delete Task?</h2>
+          <p className="delete-modal-text">
+            Are you sure you want to delete this task? This action cannot be
+            undone and will remove all associated logs from your sanctuary.
+          </p>
+          <div className="delete-modal-actions">
+            <button type="button" className="delete-modal-cancel" onClick={closeDeleteModal}>
+              Cancel
+            </button>
+            <button type="button" className="delete-modal-confirm" onClick={confirmDelete}>
+              Delete
+            </button>
+          </div>
         </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setShowDeleteModal(false);
-              setDeleteId(null);
-            }}
-          >
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={confirmDelete}>
-            Delete
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       {filteredTasks.length === 0 ? (
