@@ -74,6 +74,24 @@ function DashboardPage() {
   const focusPercent =
     highTotal === 0 ? 0 : Math.round((highDoneToday / highTotal) * 100);
 
+  const weekDays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  const weekCounts = [0, 0, 0, 0, 0, 0, 0];
+
+  const startOfWeek = new Date();
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  tasks.forEach((task) => {
+    if (task.status === "Completed" && task.updatedAt) {
+      const completedDate = new Date(task.updatedAt);
+      if (completedDate >= startOfWeek) {
+        weekCounts[completedDate.getDay()] += 1;
+      }
+    }
+  });
+
+  const weekTotal = weekCounts.reduce((sum, count) => sum + count, 0);
+
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -162,18 +180,35 @@ function DashboardPage() {
           )}
         </div>
 
-        <div className="col-lg-4">
+        <div className="col-lg-4 d-flex flex-column gap-3">
           <div
-            className="card text-white h-100"
-            style={{ backgroundColor: "#003333" }}
+            className="card text-white"
+            style={{ backgroundColor: "#224D4D", border: "none" }}
           >
-            <div className="card-body">
-              <p className="mb-1 opacity-75">Today's Focus</p>
-              <h2 className="h3">{focusPercent}%</h2>
-              <p className="small mb-3">
-                {highDoneToday}/{highTotal} high-priority done
+            <div className="card-body p-4">
+              <p className="fw-semibold mb-0">Today's Focus</p>
+              <p className="small mt-2 mb-4 opacity-75">
+                You've completed {focusPercent}% of your high-priority goals.
+                Keep the momentum.
               </p>
-              <div className="progress mb-3" style={{ height: "8px" }}>
+              <h2
+                className="display-6 fw-bold mb-4"
+                style={{ color: "#99cc33" }}
+              >
+                {focusPercent}%
+              </h2>
+              <div className="d-flex justify-content-end mb-1">
+                <span className="small opacity-75">
+                  {highDoneToday}/{highTotal} Done
+                </span>
+              </div>
+              <div
+                className="progress"
+                style={{
+                  height: "10px",
+                  backgroundColor: "rgba(255,255,255,0.15)",
+                }}
+              >
                 <div
                   className="progress-bar"
                   style={{
@@ -182,10 +217,56 @@ function DashboardPage() {
                   }}
                 />
               </div>
-              <p className="small mb-0 opacity-75">
-                You've completed {focusPercent}% of your high-priority goals.
-                Keep the momentum.
-              </p>
+            </div>
+          </div>
+
+          <div
+            className="card text-white"
+            style={{ backgroundColor: "#224D4D", border: "none" }}
+          >
+            <div className="card-body p-4">
+              <div className="d-flex justify-content-between align-items-start mb-4">
+                <p className="mb-0 opacity-75">Weekly Deep Work</p>
+                <span
+                  className="fw-bold"
+                  style={{ color: "#99cc33", fontSize: "1.5rem" }}
+                >
+                  {weekTotal} tasks
+                </span>
+              </div>
+
+              <div
+                className="d-flex align-items-end justify-content-between gap-1"
+                style={{ height: "120px" }}
+              >
+                {weekCounts.map((count, index) => {
+                  const max = Math.max(...weekCounts, 1);
+                  const height = `${(count / max) * 100}%`;
+
+                  return (
+                    <div
+                      key={weekDays[index]}
+                      className="d-flex flex-column align-items-center flex-fill"
+                    >
+                      <div
+                        style={{
+                          width: "100%",
+                          height,
+                          backgroundColor:
+                            index === new Date().getDay()
+                              ? "#99cc33"
+                              : "rgba(255,255,255,0.25)",
+                          borderRadius: "4px",
+                          minHeight: count > 0 ? "8px" : "0",
+                        }}
+                      />
+                      <span className="small mt-2 opacity-75">
+                        {weekDays[index]}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
