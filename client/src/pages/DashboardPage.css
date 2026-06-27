@@ -175,3 +175,74 @@
   background: #f3f4f6;
   color: #6b7280;
 }
+
+@media (max-width: 768px) {
+  .dashboard-greeting {
+    font-size: 1.35rem;
+  }
+
+  .dashboard-intro {
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .focus-panel {
+    padding: 1rem;
+  }
+
+  .focus-panel-header {
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .focus-panel-task-title {
+    min-width: 0;
+    word-break: break-word;
+  }
+
+  .focus-panel-item {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .focus-priority-badge {
+    margin-left: 2.25rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-card-value {
+    font-size: 1.75rem;
+  }
+
+  .stat-card-yesterday {
+    font-size: 0.65rem;
+    white-space: normal;
+    text-align: right;
+    max-width: 5.5rem;
+    line-height: 1.3;
+  }
+
+  .dashboard-widget .card-body {
+    padding: 1.25rem !important;
+  }
+
+  .dashboard-widget .display-6 {
+    font-size: 2rem;
+  }
+
+  .weekly-chart {
+    height: 96px !important;
+  }
+
+  .weekly-chart-label {
+    font-size: 0.6rem;
+  }
+
+  .weekly-total {
+    font-size: 1.25rem !important;
+  }
+}

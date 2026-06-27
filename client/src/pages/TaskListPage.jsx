@@ -2,7 +2,17 @@ import { useState, useEffect } from "react";
 import { getTasks, createTask, deleteTask, updateTask } from "../api/taskApi";
 import { Modal, Button } from "react-bootstrap";
 import { useLocation, useOutletContext } from "react-router-dom";
+import "./TaskListPage.css";
 
+function priorityBadgeClass(priority) {
+  if (priority === "High") return "bg-danger";
+  if (priority === "Medium") return "bg-warning text-dark";
+  return "bg-secondary";
+}
+
+function statusBadgeClass(status) {
+  return status === "Completed" ? "bg-success" : "bg-warning text-dark";
+}
 
 function TaskListPage() {
   const [tasks, setTasks] = useState([]);
@@ -126,19 +136,24 @@ function TaskListPage() {
         </div>
       )}
 
-      <h1 className="h3 mb-4">TaskNest - All Tasks</h1>
-      <p className="text-muted">Manage your sanctuary of focused work</p>
+      <div className="tasks-page-header">
+        <h1 className="h3 mb-2">TaskNest - All Tasks</h1>
+        <p className="text-muted mb-0">Manage your sanctuary of focused work</p>
+      </div>
 
-      <button
-        type="button"
-        className="btn btn-new-task mb-4"
-        onClick={() => setShowModal(true)}
-      >
-        + Add Task
-      </button>
+      <div className="tasks-page-actions">
+        <button
+          type="button"
+          className="btn btn-new-task"
+          onClick={() => setShowModal(true)}
+        >
+          + Add Task
+        </button>
+      </div>
 
       <Modal
         show={showModal}
+        fullscreen="sm-down"
         onHide={() => {
           setShowModal(false);
           setEditingId(null);
@@ -221,6 +236,7 @@ function TaskListPage() {
 
       <Modal
         show={showDeleteModal}
+        fullscreen="sm-down"
         onHide={() => {
           setShowDeleteModal(false);
           setDeleteId(null);
@@ -249,10 +265,66 @@ function TaskListPage() {
       </Modal>
 
       {filteredTasks.length === 0 ? (
-        <p className="text-muted">No tasks yet.</p>
+        <p className="text-muted">
+          {tasks.length === 0
+            ? "No tasks yet."
+            : "No tasks match your search."}
+        </p>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-hover align-middle bg-white">
+        <>
+          <div className="task-cards d-md-none">
+            {filteredTasks.map((task) => (
+              <article key={task._id} className="task-card">
+                <div className="task-card-header">
+                  <span className="task-card-title">{task.title}</span>
+                  <span className={`badge ${statusBadgeClass(task.status)}`}>
+                    {task.status}
+                  </span>
+                </div>
+                {task.description && (
+                  <p className="task-card-desc">{task.description}</p>
+                )}
+                <div className="task-card-meta">
+                  <span>
+                    Due:{" "}
+                    {task.dueDate
+                      ? new Date(task.dueDate).toLocaleDateString()
+                      : "—"}
+                  </span>
+                  <span>
+                    Created:{" "}
+                    {task.createdAt
+                      ? new Date(task.createdAt).toLocaleDateString()
+                      : "—"}
+                  </span>
+                  {task.priority && (
+                    <span className={`badge ${priorityBadgeClass(task.priority)}`}>
+                      {task.priority}
+                    </span>
+                  )}
+                </div>
+                <div className="task-card-actions">
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={() => handleEdit(task)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={() => openDeleteModal(task._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="table-responsive d-none d-md-block">
+            <table className="table table-hover align-middle bg-white">
             <thead>
               <tr>
                 <th>Task name</th>
@@ -284,15 +356,7 @@ function TaskListPage() {
                   </td>
                   <td>
                     {task.priority ? (
-                      <span
-                        className={`badge ${
-                          task.priority === "High"
-                            ? "bg-danger"
-                            : task.priority === "Medium"
-                              ? "bg-warning text-dark"
-                              : "bg-secondary"
-                        }`}
-                      >
+                      <span className={`badge ${priorityBadgeClass(task.priority)}`}>
                         {task.priority}
                       </span>
                     ) : (
@@ -300,13 +364,7 @@ function TaskListPage() {
                     )}
                   </td>
                   <td>
-                    <span
-                      className={`badge ${
-                        task.status === "Completed"
-                          ? "bg-success"
-                          : "bg-warning text-dark"
-                      }`}
-                    >
+                    <span className={`badge ${statusBadgeClass(task.status)}`}>
                       {task.status}
                     </span>
                   </td>
@@ -330,7 +388,8 @@ function TaskListPage() {
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

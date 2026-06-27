@@ -191,9 +191,9 @@ function DashboardPage() {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div>
-      <h1 className="h3 mb-2">{greeting}, Julian.</h1>
-      <p className="text-muted mb-4">
+    <div className="dashboard-page">
+      <h1 className="h3 mb-2 dashboard-greeting">{greeting}, Julian.</h1>
+      <p className="text-muted mb-4 dashboard-intro">
         What will you focus on today to maintain your sanctuary?
       </p>
       <div className="row g-3">
@@ -238,8 +238,8 @@ function DashboardPage() {
         </div>
       </div>
 
-      <div className="row mt-4">
-        <div className="col-lg-8">
+      <div className="row mt-4 g-3">
+        <div className="col-12 col-lg-8">
           <div className="focus-panel">
             <div className="focus-panel-header">
               <div className="focus-panel-title">
@@ -280,9 +280,9 @@ function DashboardPage() {
           </div>
         </div>
 
-        <div className="col-lg-4 d-flex flex-column gap-3">
+        <div className="col-12 col-lg-4 d-flex flex-column gap-3">
           <div
-            className="card text-white"
+            className="card text-white dashboard-widget"
             style={{ backgroundColor: "#224D4D", border: "none" }}
           >
             <div className="card-body p-4">
@@ -321,14 +321,14 @@ function DashboardPage() {
           </div>
 
           <div
-            className="card text-white"
+            className="card text-white dashboard-widget"
             style={{ backgroundColor: "#224D4D", border: "none" }}
           >
             <div className="card-body p-4">
               <div className="d-flex justify-content-between align-items-start mb-4">
                 <p className="mb-0 opacity-75">Weekly Deep Work</p>
                 <span
-                  className="fw-bold"
+                  className="fw-bold weekly-total"
                   style={{ color: "#99cc33", fontSize: "1.5rem" }}
                 >
                   {weekTotal} tasks
@@ -336,7 +336,7 @@ function DashboardPage() {
               </div>
 
               <div
-                className="d-flex align-items-end justify-content-between gap-1"
+                className="d-flex align-items-end justify-content-between gap-1 weekly-chart"
                 style={{ height: "120px" }}
               >
                 {weekCounts.map((count, index) => {
@@ -360,7 +360,7 @@ function DashboardPage() {
                           minHeight: count > 0 ? "8px" : "0",
                         }}
                       />
-                      <span className="small mt-2 opacity-75">
+                      <span className="small mt-2 opacity-75 weekly-chart-label">
                         {weekDays[index]}
                       </span>
                     </div>

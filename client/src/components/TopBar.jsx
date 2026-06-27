@@ -1,23 +1,58 @@
-function TopBar({ search, onSearchChange }) {
-    return (
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <input
-          type="search"
-          className="form-control"
-          placeholder="Search focus..."
-          style={{ maxWidth: "320px" }}
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-        />
-        <div className="d-flex align-items-center gap-2">
-          <span className="fw-semibold">Julian Rivera</span>
-          <div
-            className="rounded-circle bg-secondary"
-            style={{ width: "36px", height: "36px" }}
+import "./TopBar.css";
+
+function TopBar({ search, onSearchChange, onMenuToggle }) {
+  return (
+    <div className="topbar">
+      <div className="topbar-start">
+        <button
+          type="button"
+          className="topbar-menu-btn"
+          aria-label="Toggle menu"
+          onClick={onMenuToggle}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M4 7h16M4 12h16M4 17h16"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+
+        <div className="topbar-search">
+          <svg
+            className="topbar-search-icon"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+            <path
+              d="M20 20l-3.5-3.5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+          <input
+            type="search"
+            className="topbar-search-input"
+            placeholder="Search focus..."
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
       </div>
-    );
-  }
-  
-  export default TopBar;
+
+      <div className="topbar-user">
+        <span className="topbar-user-name">Julian Rivera</span>
+        <div className="topbar-avatar" aria-hidden="true" />
+      </div>
+    </div>
+  );
+}
+
+export default TopBar;
