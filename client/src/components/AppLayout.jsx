@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import "./AppLayout.css";
+import TopBar from "./TopBar.jsx";
 
 function AppLayout() {
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ function AppLayout() {
       </aside>
 
       <main className="flex-grow-1 p-4 bg-light">
+        <TopBar />
         <Outlet />
       </main>
     </div>
