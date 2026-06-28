@@ -10,9 +10,74 @@ function priorityBadgeClass(priority) {
   return "priority-badge priority-badge-low";
 }
 
-function statusBadgeClass(status) {
-  return status === "Completed" ? "bg-success" : "bg-warning text-dark";
+function formatDueDate(dateStr) {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
+
+const FilterIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M4 7h16M7 12h10M10 17h4"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const SortIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M4 7h10M4 12h7M4 17h4"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    <path
+      d="M18 6v12M18 18l3-3M18 18l-3-3"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const CalendarIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.75" />
+    <path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+  </svg>
+);
+
+const EditIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5z"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M9 3h6l1 2h4v2H4V5h4l1-2z" stroke="currentColor" strokeWidth="1.5" />
+    <path
+      d="M6 9h12v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+    <path d="M10 11v6M14 11v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
 
 function TaskListPage() {
   const [tasks, setTasks] = useState([]);
@@ -145,29 +210,34 @@ function TaskListPage() {
     );
   });
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p className="tasks-loading">Loading tasks...</p>;
 
   return (
-    <div>
+    <div className="tasks-page">
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
         </div>
       )}
 
-      <div className="tasks-page-header">
-        <h1 className="h3 mb-2">TaskNest - All Tasks</h1>
-        <p className="text-muted mb-0">Manage your sanctuary of focused work</p>
-      </div>
+      <div className="tasks-page-top">
+        <div className="tasks-page-header">
+          <h1 className="tasks-page-title">All Tasks</h1>
+          <p className="tasks-page-subtitle">
+            Manage your sanctuary of focused work and deep productivity.
+          </p>
+        </div>
 
-      <div className="tasks-page-actions">
-        <button
-          type="button"
-          className="btn btn-new-task"
-          onClick={() => setShowModal(true)}
-        >
-          + Add Task
-        </button>
+        <div className="tasks-toolbar">
+          <button type="button" className="tasks-toolbar-btn" disabled>
+            <FilterIcon />
+            Filter
+          </button>
+          <button type="button" className="tasks-toolbar-btn" disabled>
+            <SortIcon />
+            Sort
+          </button>
+        </div>
       </div>
 
       <Modal
@@ -413,135 +483,157 @@ function TaskListPage() {
         </Modal.Body>
       </Modal>
 
-      {filteredTasks.length === 0 ? (
-        <p className="text-muted">
-          {tasks.length === 0 ? "No tasks yet." : "No tasks match your search."}
-        </p>
-      ) : (
-        <>
-          <div className="task-cards d-md-none">
-            {filteredTasks.map((task) => (
-              <article key={task._id} className="task-card">
-                <div className="task-card-header">
-                  <span className="task-card-title">{task.title}</span>
-                  <span className={`badge ${statusBadgeClass(task.status)}`}>
-                    {task.status}
-                  </span>
-                </div>
-                {task.description && (
-                  <p className="task-card-desc">{task.description}</p>
-                )}
-                <div className="task-card-meta">
-                  <span>
-                    Due:{" "}
-                    {task.dueDate
-                      ? new Date(task.dueDate).toLocaleDateString()
-                      : "—"}
-                  </span>
-                  <span>
-                    Created:{" "}
-                    {task.createdAt
-                      ? new Date(task.createdAt).toLocaleDateString()
-                      : "—"}
-                  </span>
-                  {task.priority && (
-                    <span className={priorityBadgeClass(task.priority)}>
-                      {task.priority}
-                    </span>
-                  )}
-                </div>
-                <div className="task-card-actions">
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-outline-primary"
-                    onClick={() => handleEdit(task)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-outline-danger"
-                    onClick={() => openDeleteModal(task._id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
+      <div className="tasks-table-card">
+        {filteredTasks.length === 0 ? (
+          <p className="tasks-empty">
+            {tasks.length === 0 ? "No tasks yet." : "No tasks match your search."}
+          </p>
+        ) : (
+          <>
+            <div className="task-cards d-md-none">
+              {filteredTasks.map((task) => {
+                const isCompleted = task.status === "Completed";
 
-          <div className="table-responsive d-none d-md-block">
-            <table className="table table-hover align-middle bg-white">
-              <thead>
-                <tr>
-                  <th>Task name</th>
-                  <th>Due date</th>
-                  <th>Created</th>
-                  <th>Priority</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTasks.map((task) => (
-                  <tr key={task._id}>
-                    <td>
-                      <strong>{task.title}</strong>
-                      {task.description && (
-                        <div className="small text-muted">
-                          {task.description}
-                        </div>
-                      )}
-                    </td>
-                    <td>
-                      {task.dueDate
-                        ? new Date(task.dueDate).toLocaleDateString()
-                        : "—"}
-                    </td>
-                    <td>
-                      {task.createdAt
-                        ? new Date(task.createdAt).toLocaleDateString()
-                        : "—"}
-                    </td>
-                    <td>
-                      {task.priority ? (
+                return (
+                  <article
+                    key={task._id}
+                    className={`task-card${isCompleted ? " is-completed" : ""}`}
+                  >
+                    <div className="task-card-header">
+                      <span className="task-card-title">{task.title}</span>
+                      <span
+                        className={`task-status task-status-${task.status.toLowerCase()}`}
+                      >
+                        <span className="task-status-dot" aria-hidden="true" />
+                        {task.status}
+                      </span>
+                    </div>
+                    {task.description && (
+                      <p className="task-card-desc">{task.description}</p>
+                    )}
+                    <div className="task-card-meta">
+                      <span className="task-due-date">
+                        <CalendarIcon />
+                        {formatDueDate(task.dueDate)}
+                      </span>
+                      {task.priority && (
                         <span className={priorityBadgeClass(task.priority)}>
                           {task.priority}
                         </span>
-                      ) : (
-                        "—"
                       )}
-                    </td>
-                    <td>
-                      <span
-                        className={`badge ${statusBadgeClass(task.status)}`}
-                      >
-                        {task.status}
-                      </span>
-                    </td>
-                    <td>
+                    </div>
+                    <div className="task-card-actions">
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline-primary me-2"
+                        className="task-action-btn"
+                        aria-label="Edit task"
                         onClick={() => handleEdit(task)}
                       >
-                        Edit
+                        <EditIcon />
                       </button>
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline-danger"
+                        className="task-action-btn task-action-btn-danger"
+                        aria-label="Delete task"
                         onClick={() => openDeleteModal(task._id)}
                       >
-                        Delete
+                        <TrashIcon />
                       </button>
-                    </td>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            <div className="tasks-table-wrap d-none d-md-block">
+              <table className="tasks-table">
+                <thead>
+                  <tr>
+                    <th>Task name</th>
+                    <th>Due date</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
+                </thead>
+                <tbody>
+                  {filteredTasks.map((task) => {
+                    const isCompleted = task.status === "Completed";
+
+                    return (
+                      <tr
+                        key={task._id}
+                        className={isCompleted ? "is-completed" : undefined}
+                      >
+                        <td>
+                          <div className="task-name-cell">
+                            <span className="task-name-title">{task.title}</span>
+                            {task.description && (
+                              <span className="task-name-desc">
+                                {task.description}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <span className="task-due-date">
+                            <CalendarIcon />
+                            {formatDueDate(task.dueDate)}
+                          </span>
+                        </td>
+                        <td>
+                          {task.priority ? (
+                            <span className={priorityBadgeClass(task.priority)}>
+                              {task.priority}
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                        <td>
+                          <span
+                            className={`task-status task-status-${task.status.toLowerCase()}`}
+                          >
+                            <span className="task-status-dot" aria-hidden="true" />
+                            {task.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="task-actions">
+                            <button
+                              type="button"
+                              className="task-action-btn"
+                              aria-label="Edit task"
+                              onClick={() => handleEdit(task)}
+                            >
+                              <EditIcon />
+                            </button>
+                            <button
+                              type="button"
+                              className="task-action-btn task-action-btn-danger"
+                              aria-label="Delete task"
+                              onClick={() => openDeleteModal(task._id)}
+                            >
+                              <TrashIcon />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="tasks-table-footer">
+              <span>
+                Showing {filteredTasks.length} of {tasks.length} task
+                {tasks.length === 1 ? "" : "s"}
+              </span>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
