@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getTasks, createTask, deleteTask, updateTask } from "../api/taskApi";
 import { Modal } from "react-bootstrap";
 import { useLocation, useOutletContext } from "react-router-dom";
@@ -79,6 +79,52 @@ const TrashIcon = () => (
   </svg>
 );
 
+const PRIORITY_RANK = { High: 0, Medium: 1, Low: 2 };
+
+const SORT_OPTIONS = [
+  { value: "newest", label: "Newest first" },
+  { value: "oldest", label: "Oldest first" },
+  { value: "due-date", label: "Due date (soonest)" },
+  { value: "title", label: "Title (A–Z)" },
+  { value: "priority-high", label: "Priority (high to low)" },
+  { value: "priority-low", label: "Priority (low to high)" },
+];
+
+function sortTasks(list, sortBy) {
+  const sorted = [...list];
+
+  switch (sortBy) {
+    case "oldest":
+      return sorted.sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
+    case "due-date":
+      return sorted.sort((a, b) => {
+        if (!a.dueDate && !b.dueDate) return 0;
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return new Date(a.dueDate) - new Date(b.dueDate);
+      });
+    case "title":
+      return sorted.sort((a, b) => a.title.localeCompare(b.title));
+    case "priority-high":
+      return sorted.sort(
+        (a, b) =>
+          (PRIORITY_RANK[a.priority] ?? 2) - (PRIORITY_RANK[b.priority] ?? 2)
+      );
+    case "priority-low":
+      return sorted.sort(
+        (a, b) =>
+          (PRIORITY_RANK[b.priority] ?? 2) - (PRIORITY_RANK[a.priority] ?? 2)
+      );
+    case "newest":
+    default:
+      return sorted.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+  }
+}
+
 function TaskListPage() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -92,6 +138,14 @@ function TaskListPage() {
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
+
+  const filterRef = useRef(null);
+  const sortRef = useRef(null);
 
   const location = useLocation();
   const { search } = useOutletContext();
@@ -117,6 +171,20 @@ function TaskListPage() {
 
   useEffect(() => {
     fetchTasks();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setShowFilterMenu(false);
+      }
+      if (sortRef.current && !sortRef.current.contains(event.target)) {
+        setShowSortMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSubmit = async (e) => {
@@ -219,14 +287,34 @@ function TaskListPage() {
     }
   };
 
-  const filteredTasks = tasks.filter((task) => {
-    if (!search.trim()) return true;
-    const q = search.toLowerCase();
-    return (
-      task.title.toLowerCase().includes(q) ||
-      (task.description && task.description.toLowerCase().includes(q))
-    );
-  });
+  const filteredTasks = sortTasks(
+    tasks.filter((task) => {
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        const matchesSearch =
+          task.title.toLowerCase().includes(q) ||
+          (task.description && task.description.toLowerCase().includes(q));
+        if (!matchesSearch) return false;
+      }
+
+      if (statusFilter !== "all" && task.status !== statusFilter) return false;
+      if (priorityFilter !== "all" && task.priority !== priorityFilter) {
+        return false;
+      }
+
+      return true;
+    }),
+    sortBy
+  );
+
+  const hasActiveFilters =
+    statusFilter !== "all" || priorityFilter !== "all";
+  const hasCustomSort = sortBy !== "newest";
+
+  const clearFilters = () => {
+    setStatusFilter("all");
+    setPriorityFilter("all");
+  };
 
   if (loading) return <p className="tasks-loading">Loading tasks...</p>;
 
@@ -247,14 +335,103 @@ function TaskListPage() {
         </div>
 
         <div className="tasks-toolbar">
-          <button type="button" className="tasks-toolbar-btn" disabled>
-            <FilterIcon />
-            Filter
-          </button>
-          <button type="button" className="tasks-toolbar-btn" disabled>
-            <SortIcon />
-            Sort
-          </button>
+          <div className="tasks-toolbar-menu" ref={filterRef}>
+            <button
+              type="button"
+              className={`tasks-toolbar-btn${hasActiveFilters ? " is-active" : ""}`}
+              aria-expanded={showFilterMenu}
+              aria-haspopup="true"
+              onClick={() => {
+                setShowSortMenu(false);
+                setShowFilterMenu((open) => !open);
+              }}
+            >
+              <FilterIcon />
+              Filter
+            </button>
+
+            {showFilterMenu && (
+              <div className="tasks-toolbar-dropdown">
+                <p className="tasks-dropdown-label">Status</p>
+                <div className="tasks-dropdown-options">
+                  {["all", "Pending", "Completed"].map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`tasks-dropdown-option${
+                        statusFilter === value ? " is-selected" : ""
+                      }`}
+                      onClick={() => setStatusFilter(value)}
+                    >
+                      {value === "all" ? "All" : value}
+                    </button>
+                  ))}
+                </div>
+
+                <p className="tasks-dropdown-label">Priority</p>
+                <div className="tasks-dropdown-options">
+                  {["all", "High", "Medium", "Low"].map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`tasks-dropdown-option${
+                        priorityFilter === value ? " is-selected" : ""
+                      }`}
+                      onClick={() => setPriorityFilter(value)}
+                    >
+                      {value === "all" ? "All" : value}
+                    </button>
+                  ))}
+                </div>
+
+                {hasActiveFilters && (
+                  <button
+                    type="button"
+                    className="tasks-dropdown-clear"
+                    onClick={clearFilters}
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="tasks-toolbar-menu" ref={sortRef}>
+            <button
+              type="button"
+              className={`tasks-toolbar-btn${hasCustomSort ? " is-active" : ""}`}
+              aria-expanded={showSortMenu}
+              aria-haspopup="true"
+              onClick={() => {
+                setShowFilterMenu(false);
+                setShowSortMenu((open) => !open);
+              }}
+            >
+              <SortIcon />
+              Sort
+            </button>
+
+            {showSortMenu && (
+              <div className="tasks-toolbar-dropdown">
+                {SORT_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={`tasks-dropdown-option tasks-dropdown-option-block${
+                      sortBy === option.value ? " is-selected" : ""
+                    }`}
+                    onClick={() => {
+                      setSortBy(option.value);
+                      setShowSortMenu(false);
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -504,7 +681,9 @@ function TaskListPage() {
       <div className="tasks-table-card">
         {filteredTasks.length === 0 ? (
           <p className="tasks-empty">
-            {tasks.length === 0 ? "No tasks yet." : "No tasks match your search."}
+            {tasks.length === 0
+              ? "No tasks yet."
+              : "No tasks match your search or filters."}
           </p>
         ) : (
           <>
