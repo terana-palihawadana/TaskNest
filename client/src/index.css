@@ -1,3 +1,14 @@
+:root {
+  --tn-green: #99cc33;
+  --tn-green-soft: #b8dc6a;
+  --tn-green-deep: #7cb342;
+  --tn-teal: #003333;
+  --tn-teal-widget: #1a4744;
+  --tn-text-muted-on-dark: rgba(255, 255, 255, 0.72);
+  --tn-track-on-dark: rgba(255, 255, 255, 0.14);
+  --tn-bar-inactive: rgba(255, 255, 255, 0.22);
+}
+
 body {
   margin: 0;
   font-family: "Inter", system-ui, sans-serif;

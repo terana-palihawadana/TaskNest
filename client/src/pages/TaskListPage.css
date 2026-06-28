@@ -301,3 +301,29 @@
 .delete-modal-confirm:hover {
   background: #7f1d1d;
 }
+
+.priority-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.priority-badge-high {
+  background: #fc97ff;
+  color: #5c1a6e;
+}
+
+.priority-badge-medium {
+  background: #addff1;
+  color: #3d4f4f;
+}
+
+.priority-badge-low {
+  background: #e1e3e4;
+  color: #4b5563;
+}

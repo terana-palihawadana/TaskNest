@@ -37,7 +37,7 @@
 .topbar-search {
   position: relative;
   flex: 1;
-  max-width: 420px;
+  width: 100%;
   min-width: 0;
 }
 
@@ -102,7 +102,7 @@
   }
 
   .topbar-search {
-    max-width: none;
+    flex: 1;
   }
 
   .topbar-search-input {

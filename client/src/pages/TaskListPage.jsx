@@ -5,9 +5,9 @@ import { useLocation, useOutletContext } from "react-router-dom";
 import "./TaskListPage.css";
 
 function priorityBadgeClass(priority) {
-  if (priority === "High") return "bg-danger";
-  if (priority === "Medium") return "bg-warning text-dark";
-  return "bg-secondary";
+  if (priority === "High") return "priority-badge priority-badge-high";
+  if (priority === "Medium") return "priority-badge priority-badge-medium";
+  return "priority-badge priority-badge-low";
 }
 
 function statusBadgeClass(status) {
@@ -198,7 +198,9 @@ function TaskListPage() {
                 </div>
 
                 <div className="task-modal-field">
-                  <label htmlFor="edit-description">Context &amp; Details</label>
+                  <label htmlFor="edit-description">
+                    Context &amp; Details
+                  </label>
                   <textarea
                     id="edit-description"
                     className="task-modal-textarea"
@@ -211,7 +213,11 @@ function TaskListPage() {
 
                 <div className="task-modal-field">
                   <label>Priority Level</label>
-                  <div className="priority-segments" role="group" aria-label="Priority level">
+                  <div
+                    className="priority-segments"
+                    role="group"
+                    aria-label="Priority level"
+                  >
                     {["Low", "Medium", "High"].map((level) => (
                       <button
                         key={level}
@@ -251,10 +257,18 @@ function TaskListPage() {
               </form>
             </Modal.Body>
             <Modal.Footer className="task-modal-footer">
-              <button type="button" className="task-modal-discard" onClick={closeTaskModal}>
+              <button
+                type="button"
+                className="task-modal-discard"
+                onClick={closeTaskModal}
+              >
                 Discard
               </button>
-              <button type="submit" form="edit-task-form" className="task-modal-submit">
+              <button
+                type="submit"
+                form="edit-task-form"
+                className="task-modal-submit"
+              >
                 Save Changes
               </button>
             </Modal.Footer>
@@ -280,7 +294,9 @@ function TaskListPage() {
                 </div>
 
                 <div className="task-modal-field">
-                  <label htmlFor="create-description">Context &amp; Details</label>
+                  <label htmlFor="create-description">
+                    Context &amp; Details
+                  </label>
                   <textarea
                     id="create-description"
                     className="task-modal-textarea"
@@ -293,7 +309,11 @@ function TaskListPage() {
 
                 <div className="task-modal-field">
                   <label>Priority Level</label>
-                  <div className="priority-segments" role="group" aria-label="Priority level">
+                  <div
+                    className="priority-segments"
+                    role="group"
+                    aria-label="Priority level"
+                  >
                     {["Low", "Medium", "High"].map((level) => (
                       <button
                         key={level}
@@ -320,10 +340,18 @@ function TaskListPage() {
               </form>
             </Modal.Body>
             <Modal.Footer className="task-modal-footer">
-              <button type="button" className="task-modal-discard" onClick={closeTaskModal}>
+              <button
+                type="button"
+                className="task-modal-discard"
+                onClick={closeTaskModal}
+              >
                 Discard
               </button>
-              <button type="submit" form="create-task-form" className="task-modal-submit">
+              <button
+                type="submit"
+                form="create-task-form"
+                className="task-modal-submit"
+              >
                 Create Task
               </button>
             </Modal.Footer>
@@ -340,10 +368,7 @@ function TaskListPage() {
         <Modal.Body className="delete-modal-body">
           <div className="delete-modal-icon" aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M9 3h6l1 2h4v2H4V5h4l1-2z"
-                fill="currentColor"
-              />
+              <path d="M9 3h6l1 2h4v2H4V5h4l1-2z" fill="currentColor" />
               <path
                 d="M6 9h12v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z"
                 fill="currentColor"
@@ -370,10 +395,18 @@ function TaskListPage() {
             undone and will remove all associated logs from your sanctuary.
           </p>
           <div className="delete-modal-actions">
-            <button type="button" className="delete-modal-cancel" onClick={closeDeleteModal}>
+            <button
+              type="button"
+              className="delete-modal-cancel"
+              onClick={closeDeleteModal}
+            >
               Cancel
             </button>
-            <button type="button" className="delete-modal-confirm" onClick={confirmDelete}>
+            <button
+              type="button"
+              className="delete-modal-confirm"
+              onClick={confirmDelete}
+            >
               Delete
             </button>
           </div>
@@ -382,9 +415,7 @@ function TaskListPage() {
 
       {filteredTasks.length === 0 ? (
         <p className="text-muted">
-          {tasks.length === 0
-            ? "No tasks yet."
-            : "No tasks match your search."}
+          {tasks.length === 0 ? "No tasks yet." : "No tasks match your search."}
         </p>
       ) : (
         <>
@@ -414,7 +445,7 @@ function TaskListPage() {
                       : "—"}
                   </span>
                   {task.priority && (
-                    <span className={`badge ${priorityBadgeClass(task.priority)}`}>
+                    <span className={priorityBadgeClass(task.priority)}>
                       {task.priority}
                     </span>
                   )}
@@ -441,69 +472,73 @@ function TaskListPage() {
 
           <div className="table-responsive d-none d-md-block">
             <table className="table table-hover align-middle bg-white">
-            <thead>
-              <tr>
-                <th>Task name</th>
-                <th>Due date</th>
-                <th>Created</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTasks.map((task) => (
-                <tr key={task._id}>
-                  <td>
-                    <strong>{task.title}</strong>
-                    {task.description && (
-                      <div className="small text-muted">{task.description}</div>
-                    )}
-                  </td>
-                  <td>
-                    {task.dueDate
-                      ? new Date(task.dueDate).toLocaleDateString()
-                      : "—"}
-                  </td>
-                  <td>
-                    {task.createdAt
-                      ? new Date(task.createdAt).toLocaleDateString()
-                      : "—"}
-                  </td>
-                  <td>
-                    {task.priority ? (
-                      <span className={`badge ${priorityBadgeClass(task.priority)}`}>
-                        {task.priority}
-                      </span>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td>
-                    <span className={`badge ${statusBadgeClass(task.status)}`}>
-                      {task.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-primary me-2"
-                      onClick={() => handleEdit(task)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => openDeleteModal(task._id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
+              <thead>
+                <tr>
+                  <th>Task name</th>
+                  <th>Due date</th>
+                  <th>Created</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredTasks.map((task) => (
+                  <tr key={task._id}>
+                    <td>
+                      <strong>{task.title}</strong>
+                      {task.description && (
+                        <div className="small text-muted">
+                          {task.description}
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      {task.dueDate
+                        ? new Date(task.dueDate).toLocaleDateString()
+                        : "—"}
+                    </td>
+                    <td>
+                      {task.createdAt
+                        ? new Date(task.createdAt).toLocaleDateString()
+                        : "—"}
+                    </td>
+                    <td>
+                      {task.priority ? (
+                        <span className={priorityBadgeClass(task.priority)}>
+                          {task.priority}
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td>
+                      <span
+                        className={`badge ${statusBadgeClass(task.status)}`}
+                      >
+                        {task.status}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary me-2"
+                        onClick={() => handleEdit(task)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => openDeleteModal(task._id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </>
       )}

@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./AppLayout.css";
 import TopBar from "./TopBar.jsx";
+import TaskNestLogo from "./TaskNestLogo.jsx";
 
 function AppLayout() {
   const navigate = useNavigate();
@@ -46,10 +47,17 @@ function AppLayout() {
           sidebarOpen ? " sidebar-open" : ""
         }`}
       >
-        <div className="mb-4">
-          <h1 className="h5 mb-1">TaskNest</h1>
-          <p className="small mb-0 opacity-75">Deep Work Sanctuary</p>
-        </div>
+        <NavLink
+          to="/dashboard"
+          onClick={closeSidebar}
+          className="sidebar-brand text-white text-decoration-none"
+        >
+          <TaskNestLogo size={40} showBackground={false} className="sidebar-brand-logo" />
+          <div>
+            <h1 className="h5 mb-1">TaskNest</h1>
+            <p className="small mb-0 opacity-75">Deep Work Sanctuary</p>
+          </div>
+        </NavLink>
 
         <nav className="nav flex-column gap-1 mb-auto">
           <NavLink
