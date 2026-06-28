@@ -90,6 +90,32 @@ const SORT_OPTIONS = [
   { value: "priority-low", label: "Priority (low to high)" },
 ];
 
+const TASKS_PER_PAGE = 8;
+
+const ChevronLeftIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M15 6l-6 6 6 6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const ChevronRightIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M9 6l6 6-6 6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 function sortTasks(list, sortBy) {
   const sorted = [...list];
 
@@ -143,6 +169,7 @@ function TaskListPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filterRef = useRef(null);
   const sortRef = useRef(null);
@@ -186,6 +213,10 @@ function TaskListPage() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, priorityFilter, sortBy]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -315,6 +346,17 @@ function TaskListPage() {
     setStatusFilter("all");
     setPriorityFilter("all");
   };
+
+  const totalFiltered = filteredTasks.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / TASKS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const pageStart = (safePage - 1) * TASKS_PER_PAGE;
+  const paginatedTasks = filteredTasks.slice(
+    pageStart,
+    pageStart + TASKS_PER_PAGE
+  );
+  const showingFrom = totalFiltered === 0 ? 0 : pageStart + 1;
+  const showingTo = Math.min(pageStart + TASKS_PER_PAGE, totalFiltered);
 
   if (loading) return <p className="tasks-loading">Loading tasks...</p>;
 
@@ -688,7 +730,7 @@ function TaskListPage() {
         ) : (
           <>
             <div className="task-cards d-md-none">
-              {filteredTasks.map((task) => {
+              {paginatedTasks.map((task) => {
                 const isCompleted = task.status === "Completed";
 
                 return (
@@ -766,7 +808,7 @@ function TaskListPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTasks.map((task) => {
+                  {paginatedTasks.map((task) => {
                     const isCompleted = task.status === "Completed";
 
                     return (
@@ -845,9 +887,31 @@ function TaskListPage() {
 
             <div className="tasks-table-footer">
               <span>
-                Showing {filteredTasks.length} of {tasks.length} task
-                {tasks.length === 1 ? "" : "s"}
+                Showing {showingFrom}–{showingTo} of {totalFiltered} task
+                {totalFiltered === 1 ? "" : "s"}
               </span>
+              {totalFiltered > TASKS_PER_PAGE && (
+                <div className="tasks-pagination">
+                  <button
+                    type="button"
+                    className="tasks-pagination-btn"
+                    aria-label="Previous page"
+                    disabled={safePage <= 1}
+                    onClick={() => setCurrentPage((page) => page - 1)}
+                  >
+                    <ChevronLeftIcon />
+                  </button>
+                  <button
+                    type="button"
+                    className="tasks-pagination-btn"
+                    aria-label="Next page"
+                    disabled={safePage >= totalPages}
+                    onClick={() => setCurrentPage((page) => page + 1)}
+                  >
+                    <ChevronRightIcon />
+                  </button>
+                </div>
+              )}
             </div>
           </>
         )}

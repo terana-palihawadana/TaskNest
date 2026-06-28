@@ -365,10 +365,43 @@
 }
 
 .tasks-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   padding: 0.9rem 1.25rem;
   border-top: 1px solid #f3f4f6;
   font-size: 0.85rem;
   color: #6b7280;
+}
+
+.tasks-pagination {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tasks-pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.tasks-pagination-btn:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.tasks-pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .task-cards {
