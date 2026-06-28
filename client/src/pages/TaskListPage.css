@@ -107,6 +107,47 @@
   text-align: right;
 }
 
+.tasks-table-col-check {
+  width: 48px;
+  padding-left: 1.25rem !important;
+  padding-right: 0 !important;
+}
+
+.tasks-table tbody .tasks-table-col-check {
+  vertical-align: middle;
+}
+
+.task-table-checkbox {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 2px solid #99cc33;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.task-table-checkbox:active {
+  transform: scale(0.92);
+}
+
+.task-table-checkbox:checked {
+  background-color: #99cc33;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M3.5 8.5L6.5 11.5L12.5 4.5' stroke='%23003333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: 14px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.task-table-checkbox:focus-visible {
+  outline: 2px solid rgba(153, 204, 51, 0.45);
+  outline-offset: 2px;
+}
+
 .tasks-table tbody td {
   padding: 1.1rem 1.25rem;
   border-bottom: 1px solid #f3f4f6;
@@ -250,6 +291,18 @@
   opacity: 0.72;
 }
 
+.task-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.task-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
 .task-card.is-completed .task-card-title,
 .task-card.is-completed .task-card-desc {
   text-decoration: line-through;
@@ -261,7 +314,7 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.75rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .task-card-title {

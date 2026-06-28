@@ -201,6 +201,24 @@ function TaskListPage() {
     resetForm();
   };
 
+  const handleToggleComplete = async (task) => {
+    const newStatus = task.status === "Completed" ? "Pending" : "Completed";
+
+    try {
+      await updateTask(task._id, {
+        title: task.title,
+        description: task.description,
+        status: newStatus,
+        priority: task.priority,
+        dueDate: task.dueDate,
+      });
+      await fetchTasks();
+    } catch (err) {
+      console.error(err);
+      setError("Failed to update task");
+    }
+  };
+
   const filteredTasks = tasks.filter((task) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
@@ -499,28 +517,39 @@ function TaskListPage() {
                     key={task._id}
                     className={`task-card${isCompleted ? " is-completed" : ""}`}
                   >
-                    <div className="task-card-header">
-                      <span className="task-card-title">{task.title}</span>
-                      <span
-                        className={`task-status task-status-${task.status.toLowerCase()}`}
-                      >
-                        <span className="task-status-dot" aria-hidden="true" />
-                        {task.status}
-                      </span>
-                    </div>
-                    {task.description && (
-                      <p className="task-card-desc">{task.description}</p>
-                    )}
-                    <div className="task-card-meta">
-                      <span className="task-due-date">
-                        <CalendarIcon />
-                        {formatDueDate(task.dueDate)}
-                      </span>
-                      {task.priority && (
-                        <span className={priorityBadgeClass(task.priority)}>
-                          {task.priority}
-                        </span>
-                      )}
+                    <div className="task-card-top">
+                      <input
+                        type="checkbox"
+                        className="task-table-checkbox"
+                        checked={isCompleted}
+                        aria-label={`Mark ${task.title} ${isCompleted ? "pending" : "complete"}`}
+                        onChange={() => handleToggleComplete(task)}
+                      />
+                      <div className="task-card-body">
+                        <div className="task-card-header">
+                          <span className="task-card-title">{task.title}</span>
+                          <span
+                            className={`task-status task-status-${task.status.toLowerCase()}`}
+                          >
+                            <span className="task-status-dot" aria-hidden="true" />
+                            {task.status}
+                          </span>
+                        </div>
+                        {task.description && (
+                          <p className="task-card-desc">{task.description}</p>
+                        )}
+                        <div className="task-card-meta">
+                          <span className="task-due-date">
+                            <CalendarIcon />
+                            {formatDueDate(task.dueDate)}
+                          </span>
+                          {task.priority && (
+                            <span className={priorityBadgeClass(task.priority)}>
+                              {task.priority}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                     <div className="task-card-actions">
                       <button
@@ -549,6 +578,7 @@ function TaskListPage() {
               <table className="tasks-table">
                 <thead>
                   <tr>
+                    <th className="tasks-table-col-check" aria-label="Complete" />
                     <th>Task name</th>
                     <th>Due date</th>
                     <th>Priority</th>
@@ -565,6 +595,15 @@ function TaskListPage() {
                         key={task._id}
                         className={isCompleted ? "is-completed" : undefined}
                       >
+                        <td className="tasks-table-col-check">
+                          <input
+                            type="checkbox"
+                            className="task-table-checkbox"
+                            checked={isCompleted}
+                            aria-label={`Mark ${task.title} ${isCompleted ? "pending" : "complete"}`}
+                            onChange={() => handleToggleComplete(task)}
+                          />
+                        </td>
                         <td>
                           <div className="task-name-cell">
                             <span className="task-name-title">{task.title}</span>
