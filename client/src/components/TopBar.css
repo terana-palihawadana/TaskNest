@@ -85,16 +85,6 @@
 .topbar-avatar {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: #003333;
-  border: 2px solid #99cc33;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.95rem;
 }
 
 .topbar-logout-btn {
