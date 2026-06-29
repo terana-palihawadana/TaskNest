@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import UserAvatar from "./UserAvatar";
 import "./TopBar.css";
 
 function TopBar({ search, onSearchChange, onMenuToggle }) {
@@ -7,7 +8,6 @@ function TopBar({ search, onSearchChange, onMenuToggle }) {
   const { user, logout } = useAuth();
 
   const displayName = user?.name || "User";
-  const initial = displayName.charAt(0).toUpperCase();
 
   const handleLogout = () => {
     logout();
@@ -62,9 +62,7 @@ function TopBar({ search, onSearchChange, onMenuToggle }) {
 
       <div className="topbar-user">
         <span className="topbar-user-name">{displayName}</span>
-        <div className="topbar-avatar" aria-hidden="true">
-          {initial}
-        </div>
+        <UserAvatar user={user} size={40} className="topbar-avatar" />
         <button
           type="button"
           className="topbar-logout-btn"
