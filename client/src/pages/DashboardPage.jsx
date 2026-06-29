@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { getTasks, updateTask } from "../api/taskApi";
+import { useAuth } from "../context/AuthContext";
 import "./DashboardPage.css";
 
 function StatCard({ iconBg, icon, label, value, topRight }) {
@@ -82,6 +83,8 @@ function DashboardPage() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const { search } = useOutletContext();
+  const { user } = useAuth();
+  const firstName = user?.name?.split(" ")[0] || "there";
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -193,7 +196,7 @@ function DashboardPage() {
   return (
     <div className="dashboard-page">
       <div className="dashboard-header">
-        <h1 className="dashboard-greeting">{greeting}, Julian.</h1>
+        <h1 className="dashboard-greeting">{greeting}, {firstName}.</h1>
         <p className="dashboard-intro">
           What will you focus on today to maintain your sanctuary?
         </p>
