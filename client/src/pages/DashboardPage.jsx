@@ -118,8 +118,16 @@ function DashboardPage() {
 
   const total = tasks.length;
   const pending = tasks.filter((task) => task.status === "Pending").length;
+
+  const isToday = (dateString) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
   const focusTasks = tasks
     .filter((task) => task.status === "Pending")
+    .filter((task) => task.dueDate && isToday(task.dueDate))
     .filter((task) => {
       if (!search.trim()) return true;
       const q = search.toLowerCase();
@@ -128,11 +136,6 @@ function DashboardPage() {
         (task.description && task.description.toLowerCase().includes(q))
       );
     });
-  const isToday = (dateString) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    return date.toDateString() === today.toDateString();
-  };
 
   const isYesterday = (dateString) => {
     const date = new Date(dateString);
@@ -258,7 +261,7 @@ function DashboardPage() {
 
             {focusTasks.length === 0 ? (
               <p className="focus-panel-empty">
-                No pending tasks. You're all caught up!
+                No tasks due today. You&apos;re all caught up!
               </p>
             ) : (
               <ul className="focus-panel-list">
