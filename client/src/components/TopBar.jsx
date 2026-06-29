@@ -1,6 +1,19 @@
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./TopBar.css";
 
 function TopBar({ search, onSearchChange, onMenuToggle }) {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const displayName = user?.name || "User";
+  const initial = displayName.charAt(0).toUpperCase();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div className="topbar">
       <div className="topbar-start">
@@ -48,8 +61,17 @@ function TopBar({ search, onSearchChange, onMenuToggle }) {
       </div>
 
       <div className="topbar-user">
-        <span className="topbar-user-name">Julian Rivera</span>
-        <div className="topbar-avatar" aria-hidden="true" />
+        <span className="topbar-user-name">{displayName}</span>
+        <div className="topbar-avatar" aria-hidden="true">
+          {initial}
+        </div>
+        <button
+          type="button"
+          className="topbar-logout-btn"
+          onClick={handleLogout}
+        >
+          Log out
+        </button>
       </div>
     </div>
   );

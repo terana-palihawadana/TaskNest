@@ -86,9 +86,32 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #e5e7eb;
-  border: 2px solid #93c5fd;
+  background: #003333;
+  border: 2px solid #99cc33;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.topbar-logout-btn {
+  border: 1px solid #d9e0dc;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.topbar-logout-btn:hover {
+  background: #f3f4f6;
+  border-color: #c5cdc8;
 }
 
 @media (max-width: 768px) {
@@ -111,6 +134,11 @@
 
   .topbar-user-name {
     display: none;
+  }
+
+  .topbar-logout-btn {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.8rem;
   }
 
   .topbar-avatar {
