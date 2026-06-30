@@ -15,7 +15,22 @@ if (!process.env.JWT_SECRET) {
     process.exit(1);
 }
 
-app.use(cors());
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+app.use(
+    cors({
+        origin(origin, callback) {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+                return;
+            }
+            callback(new Error(`CORS blocked for origin: ${origin}`));
+        },
+    })
+);
 app.use(express.json());
 
 app.get('/', (req,res) => {

@@ -37,8 +37,9 @@ Create `.env` from `.env.example` and set:
 
 ```env
 PORT=5000
-MONGODB_URI=your_mongodb_connection_string
+MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_secure_random_secret
+CLIENT_URL=http://localhost:5173
 ```
 
 Start server:
@@ -52,6 +53,17 @@ npm run dev
 ```bash
 cd client
 npm install
+```
+
+Create `.env` from `.env.example` and set:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+Start frontend:
+
+```bash
 npm run dev
 ```
 
@@ -76,4 +88,19 @@ Base URL: `http://localhost:5000/api`
 Use header:
 
 `Authorization: Bearer <token>`
+
+## Deployment
+
+- **Frontend (Vercel):** set `VITE_API_URL` to your backend URL with `/api`, then redeploy
+- **Backend (Render):** set `MONGO_URI`, `JWT_SECRET`, and `CLIENT_URL` (your frontend URL)
+
+Example:
+
+```env
+# Vercel
+VITE_API_URL=https://your-api.onrender.com/api
+
+# Render
+CLIENT_URL=https://your-app.vercel.app
+```
 
