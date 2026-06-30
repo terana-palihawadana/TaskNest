@@ -160,6 +160,27 @@
     box-shadow: 0 0 0 3px rgba(153, 204, 51, 0.18);
 }
 
+.auth-input-invalid input {
+    border-color: #e57373;
+}
+
+.auth-input-invalid input:focus {
+    border-color: #e57373;
+    box-shadow: 0 0 0 3px rgba(229, 115, 115, 0.18);
+}
+
+.auth-field-error {
+    margin: 0.4rem 0 0;
+    font-size: 0.82rem;
+    color: #b42318;
+}
+
+.auth-field-hint {
+    margin: 0.4rem 0 0;
+    font-size: 0.82rem;
+    color: #7a8480;
+}
+
 .auth-password-toggle {
     position: absolute;
     right: 0.75rem;

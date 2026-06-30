@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { validateRegistration } = require('../utils/validateRegistration');
 
 const createToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -11,22 +12,27 @@ const createToken = (userId) => {
 exports.register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
+        const validation = validateRegistration({ name, email, password });
 
-        if (!name || !email || !password) {
-            return res.status(400).json({ message: 'Please provide name, email, and password' });
+        if (!validation.isValid) {
+            const firstError = Object.values(validation.errors)[0];
+            return res.status(400).json({ message: firstError, errors: validation.errors });
         }
 
-        const existingUser = await User.findOne({ email });
+        const { name: validName, email: validEmail, password: validPassword } =
+            validation.values;
+
+        const existingUser = await User.findOne({ email: validEmail });
         if (existingUser) {
             return res.status(400).json({ message: 'Email already in use' });
         }
 
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(validPassword, salt);
 
         const user = await User.create({
-            name,
-            email,
+            name: validName,
+            email: validEmail,
             password: hashedPassword,
         });
 

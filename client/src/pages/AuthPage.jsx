@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { validateRegistration } from '../utils/validateRegistration';
 import TaskNestLogo from '../components/TaskNestLogo';
 import './AuthPage.css';
+
+const EMPTY_FIELD_ERRORS = { name: '', email: '', password: '' };
 
 function AuthPage() {
     const navigate = useNavigate();
@@ -12,6 +15,7 @@ function AuthPage() {
     const isRegister = location.pathname === '/register';
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [fieldErrors, setFieldErrors] = useState(EMPTY_FIELD_ERRORS);
     const [submitting, setSubmitting] = useState(false);
     const [form, setForm] = useState({
         name: '',
@@ -24,30 +28,52 @@ function AuthPage() {
     }
 
     const handleChange = (e) => {
-        setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
         setError('');
+        setFieldErrors((prev) => ({ ...prev, [name]: '' }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         setError('');
+        setFieldErrors(EMPTY_FIELD_ERRORS);
 
         try {
             if (isRegister) {
-                await register({
-                    name: form.name,
-                    email: form.email,
-                    password: form.password,
-                });
+                const validation = validateRegistration(form);
+                if (!validation.isValid) {
+                    setFieldErrors({
+                        name: validation.errors.name || '',
+                        email: validation.errors.email || '',
+                        password: validation.errors.password || '',
+                    });
+                    return;
+                }
+
+                await register(validation.values);
             } else {
+                if (!form.email.trim() || !form.password) {
+                    setError('Please enter your email and password');
+                    return;
+                }
+
                 await login({
-                    email: form.email,
+                    email: form.email.trim().toLowerCase(),
                     password: form.password,
                 });
             }
             navigate('/dashboard');
         } catch (err) {
+            const apiErrors = err.response?.data?.errors;
+            if (apiErrors) {
+                setFieldErrors({
+                    name: apiErrors.name || '',
+                    email: apiErrors.email || '',
+                    password: apiErrors.password || '',
+                });
+            }
             setError(err.response?.data?.message || 'Something went wrong. Please try again.');
         } finally {
             setSubmitting(false);
@@ -102,7 +128,7 @@ function AuthPage() {
                         {isRegister && (
                             <div className="auth-field">
                                 <label htmlFor="name">Full Name</label>
-                                <div className="auth-input-wrap">
+                                <div className={`auth-input-wrap${fieldErrors.name ? ' auth-input-invalid' : ''}`}>
                                     <span className="auth-input-icon" aria-hidden="true">
                                         <UserIcon />
                                     </span>
@@ -113,15 +139,22 @@ function AuthPage() {
                                         placeholder="John Doe"
                                         value={form.name}
                                         onChange={handleChange}
-                                        required
+                                        aria-invalid={Boolean(fieldErrors.name)}
+                                        aria-describedby={fieldErrors.name ? 'name-error' : undefined}
+                                        autoComplete="name"
                                     />
                                 </div>
+                                {fieldErrors.name && (
+                                    <p id="name-error" className="auth-field-error" role="alert">
+                                        {fieldErrors.name}
+                                    </p>
+                                )}
                             </div>
                         )}
 
                         <div className="auth-field">
                             <label htmlFor="email">Email{isRegister ? ' Address' : ''}</label>
-                            <div className="auth-input-wrap">
+                            <div className={`auth-input-wrap${fieldErrors.email ? ' auth-input-invalid' : ''}`}>
                                 <span className="auth-input-icon" aria-hidden="true">
                                     <MailIcon />
                                 </span>
@@ -132,16 +165,24 @@ function AuthPage() {
                                     placeholder="your@email.com"
                                     value={form.email}
                                     onChange={handleChange}
+                                    aria-invalid={Boolean(fieldErrors.email)}
+                                    aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+                                    autoComplete="email"
                                     required
                                 />
                             </div>
+                            {fieldErrors.email && (
+                                <p id="email-error" className="auth-field-error" role="alert">
+                                    {fieldErrors.email}
+                                </p>
+                            )}
                         </div>
 
                         <div className="auth-field">
                             <label htmlFor="password">
                                 {isRegister ? 'Create Password' : 'Password'}
                             </label>
-                            <div className="auth-input-wrap">
+                            <div className={`auth-input-wrap${fieldErrors.password ? ' auth-input-invalid' : ''}`}>
                                 <span className="auth-input-icon" aria-hidden="true">
                                     <LockIcon />
                                 </span>
@@ -152,7 +193,15 @@ function AuthPage() {
                                     placeholder="••••••••"
                                     value={form.password}
                                     onChange={handleChange}
-                                    minLength={6}
+                                    aria-invalid={Boolean(fieldErrors.password)}
+                                    aria-describedby={
+                                        fieldErrors.password
+                                            ? 'password-error'
+                                            : isRegister
+                                              ? 'password-hint'
+                                              : undefined
+                                    }
+                                    autoComplete={isRegister ? 'new-password' : 'current-password'}
                                     required
                                 />
                                 <button
@@ -164,6 +213,16 @@ function AuthPage() {
                                     <EyeIcon />
                                 </button>
                             </div>
+                            {isRegister && !fieldErrors.password && (
+                                <p id="password-hint" className="auth-field-hint">
+                                    At least 8 characters with one letter and one number
+                                </p>
+                            )}
+                            {fieldErrors.password && (
+                                <p id="password-error" className="auth-field-error" role="alert">
+                                    {fieldErrors.password}
+                                </p>
+                            )}
                         </div>
 
                         <button type="submit" className="auth-submit" disabled={submitting}>
