@@ -1,6 +1,6 @@
 export function getAvatarUrl(user) {
     const seed = encodeURIComponent(user?.email || user?.id || user?.name || 'guest');
-    return `https://api.dicebear.com/7.x/notionists/svg?seed=${seed}`;
+    return `https://robohash.org/${seed}?set=set4&size=80x80`;
 }
 
 export function getAvatarInitial(name) {
