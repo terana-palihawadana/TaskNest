@@ -81,6 +81,43 @@ const TrashIcon = () => (
 
 const PRIORITY_RANK = { High: 0, Medium: 1, Low: 2 };
 
+const DUE_DATE_OPTIONS = [
+  { value: "all", label: "All" },
+  { value: "overdue", label: "Overdue" },
+  { value: "today", label: "Today" },
+  { value: "week", label: "This week" },
+  { value: "none", label: "No due date" },
+];
+
+const startOfToday = () => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
+const matchesDueDateFilter = (task, filter) => {
+  if (filter === "all") return true;
+  if (filter === "none") return !task.dueDate;
+  if (!task.dueDate) return false;
+
+  const today = startOfToday();
+  const due = new Date(task.dueDate);
+  due.setHours(0, 0, 0, 0);
+
+  if (filter === "overdue") {
+    return due < today && task.status !== "Completed";
+  }
+  if (filter === "today") {
+    return due.getTime() === today.getTime();
+  }
+  if (filter === "week") {
+    const weekEnd = new Date(today);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+    return due >= today && due <= weekEnd;
+  }
+  return true;
+};
+
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest first" },
   { value: "oldest", label: "Oldest first" },
@@ -168,6 +205,7 @@ function TaskListPage() {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
+  const [dueDateFilter, setDueDateFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -354,6 +392,7 @@ function TaskListPage() {
       if (priorityFilter !== "all" && task.priority !== priorityFilter) {
         return false;
       }
+      if (!matchesDueDateFilter(task, dueDateFilter)) return false;
 
       return true;
     }),
@@ -361,12 +400,15 @@ function TaskListPage() {
   );
 
   const hasActiveFilters =
-    statusFilter !== "all" || priorityFilter !== "all";
+    statusFilter !== "all" ||
+    priorityFilter !== "all" ||
+    dueDateFilter !== "all";
   const hasCustomSort = sortBy !== "newest";
 
   const clearFilters = () => {
     setStatusFilter("all");
     setPriorityFilter("all");
+    setDueDateFilter("all");
     setCurrentPage(1);
   };
 
@@ -445,6 +487,24 @@ function TaskListPage() {
                       onClick={() => handleFilterChange(setPriorityFilter, value)}
                     >
                       {value === "all" ? "All" : value}
+                    </button>
+                  ))}
+                </div>
+
+                <p className="tasks-dropdown-label">Due date</p>
+                <div className="tasks-dropdown-options">
+                  {DUE_DATE_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`tasks-dropdown-option${
+                        dueDateFilter === option.value ? " is-selected" : ""
+                      }`}
+                      onClick={() =>
+                        handleFilterChange(setDueDateFilter, option.value)
+                      }
+                    >
+                      {option.label}
                     </button>
                   ))}
                 </div>
