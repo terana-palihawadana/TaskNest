@@ -10,6 +10,11 @@ const PORT = process.env.PORT || 5000;
 
 connectDB();
 
+if (!process.env.JWT_SECRET) {
+    console.error('JWT_SECRET is missing in .env');
+    process.exit(1);
+}
+
 app.use(cors());
 app.use(express.json());
 

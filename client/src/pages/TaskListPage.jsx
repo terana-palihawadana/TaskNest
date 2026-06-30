@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { getTasks, createTask, deleteTask, updateTask } from "../api/taskApi";
 import { Modal } from "react-bootstrap";
-import { useLocation, useOutletContext } from "react-router-dom";
+import { useOutletContext, useSearchParams } from "react-router-dom";
 import "./TaskListPage.css";
 
 function priorityBadgeClass(priority) {
@@ -174,8 +174,10 @@ function TaskListPage() {
   const filterRef = useRef(null);
   const sortRef = useRef(null);
 
-  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { search } = useOutletContext();
+  const openNewFromQuery = searchParams.get("new") === "1";
+  const isTaskModalOpen = showModal || openNewFromQuery;
 
   const fetchTasks = async () => {
     try {
@@ -191,13 +193,26 @@ function TaskListPage() {
   };
 
   useEffect(() => {
-    if (location.state?.openModal) {
-      setShowModal(true);
-    }
-  }, [location.state]);
+    let cancelled = false;
 
-  useEffect(() => {
-    fetchTasks();
+    (async () => {
+      try {
+        const response = await getTasks();
+        if (cancelled) return;
+        setTasks(Array.isArray(response.data) ? response.data : []);
+        setError("");
+      } catch (err) {
+        if (cancelled) return;
+        console.error(err);
+        setError("Failed to load tasks");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -214,9 +229,10 @@ function TaskListPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
+  const handleFilterChange = (setter, value) => {
+    setter(value);
     setCurrentPage(1);
-  }, [search, statusFilter, priorityFilter, sortBy]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -248,6 +264,9 @@ function TaskListPage() {
       setDueDate("");
       setEditingId(null);
       setShowModal(false);
+      if (openNewFromQuery) {
+        setSearchParams({}, { replace: true });
+      }
       await fetchTasks();
     } catch (err) {
       console.error(err);
@@ -297,6 +316,9 @@ function TaskListPage() {
 
   const closeTaskModal = () => {
     setShowModal(false);
+    if (openNewFromQuery) {
+      setSearchParams({}, { replace: true });
+    }
     resetForm();
   };
 
@@ -345,6 +367,7 @@ function TaskListPage() {
   const clearFilters = () => {
     setStatusFilter("all");
     setPriorityFilter("all");
+    setCurrentPage(1);
   };
 
   const totalFiltered = filteredTasks.length;
@@ -403,7 +426,7 @@ function TaskListPage() {
                       className={`tasks-dropdown-option${
                         statusFilter === value ? " is-selected" : ""
                       }`}
-                      onClick={() => setStatusFilter(value)}
+                      onClick={() => handleFilterChange(setStatusFilter, value)}
                     >
                       {value === "all" ? "All" : value}
                     </button>
@@ -419,7 +442,7 @@ function TaskListPage() {
                       className={`tasks-dropdown-option${
                         priorityFilter === value ? " is-selected" : ""
                       }`}
-                      onClick={() => setPriorityFilter(value)}
+                      onClick={() => handleFilterChange(setPriorityFilter, value)}
                     >
                       {value === "all" ? "All" : value}
                     </button>
@@ -464,7 +487,7 @@ function TaskListPage() {
                       sortBy === option.value ? " is-selected" : ""
                     }`}
                     onClick={() => {
-                      setSortBy(option.value);
+                      handleFilterChange(setSortBy, option.value);
                       setShowSortMenu(false);
                     }}
                   >
@@ -478,7 +501,7 @@ function TaskListPage() {
       </div>
 
       <Modal
-        show={showModal}
+        show={isTaskModalOpen}
         centered
         fullscreen="sm-down"
         dialogClassName="task-modal-dialog"

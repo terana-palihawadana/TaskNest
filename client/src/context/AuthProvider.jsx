@@ -1,7 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getMe, login as loginRequest, register as registerRequest } from '../api/authApi';
-
-const AuthContext = createContext(null);
+import { AuthContext } from './authContext';
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
@@ -30,29 +29,29 @@ export function AuthProvider({ children }) {
         loadUser();
     }, [token]);
 
-    const saveSession = (sessionToken, sessionUser) => {
+    const saveSession = useCallback((sessionToken, sessionUser) => {
         localStorage.setItem('token', sessionToken);
         setToken(sessionToken);
         setUser(sessionUser);
-    };
+    }, []);
 
-    const login = async (credentials) => {
+    const login = useCallback(async (credentials) => {
         const { data } = await loginRequest(credentials);
         saveSession(data.token, data.user);
         return data.user;
-    };
+    }, [saveSession]);
 
-    const register = async (credentials) => {
+    const register = useCallback(async (credentials) => {
         const { data } = await registerRequest(credentials);
         saveSession(data.token, data.user);
         return data.user;
-    };
+    }, [saveSession]);
 
-    const logout = () => {
+    const logout = useCallback(() => {
         localStorage.removeItem('token');
         setToken(null);
         setUser(null);
-    };
+    }, []);
 
     const value = useMemo(
         () => ({
@@ -64,16 +63,8 @@ export function AuthProvider({ children }) {
             register,
             logout,
         }),
-        [user, token, loading]
+        [user, token, loading, login, register, logout]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within AuthProvider');
-    }
-    return context;
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import TaskNestLogo from '../components/TaskNestLogo';
 import './AuthPage.css';
 

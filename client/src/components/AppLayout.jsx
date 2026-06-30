@@ -25,7 +25,7 @@ function AppLayout() {
   }, []);
 
   const handleNewTask = () => {
-    navigate("/tasks", { state: { openModal: true } });
+    navigate("/tasks?new=1");
     setSidebarOpen(false);
   };
 

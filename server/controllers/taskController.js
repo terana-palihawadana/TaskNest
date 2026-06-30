@@ -1,5 +1,10 @@
 const Task = require('../models/Task');
 
+const pickTaskFields = (body) => {
+    const { title, description, status, priority, dueDate } = body;
+    return { title, description, status, priority, dueDate };
+};
+
 exports.getTasks = async (req, res) => {
     try {
         const tasks = await Task.find({ user: req.user._id }).sort({ createdAt: -1 });
@@ -12,7 +17,7 @@ exports.getTasks = async (req, res) => {
 exports.createTask = async (req, res) => {
     try {
         const task = await Task.create({
-            ...req.body,
+            ...pickTaskFields(req.body),
             user: req.user._id,
         });
         res.status(201).json(task);
@@ -25,7 +30,7 @@ exports.updateTask = async (req, res) => {
     try {
         const task = await Task.findOneAndUpdate(
             { _id: req.params.id, user: req.user._id },
-            req.body,
+            pickTaskFields(req.body),
             { new: true, runValidators: true }
         );
 
